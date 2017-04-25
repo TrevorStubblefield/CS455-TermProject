@@ -18,11 +18,26 @@ def mapper(line, parameters, layers, nodes):
   parts = line.encode("ascii", "ignore").split(';')
   inputs = []
 
+  for x in range(1, 9):
+    if x > 1:
+      try:
+        parts[x] = float(parts[x])
+      except (ValueError, TypeError):
+        parts[x] = 0.0
+    else:
+      try:
+        temp = parts[x].split(":")
+        parts[x] = int(temp[0]) * 60 + int(temp[1])
+      except (ValueError, TypeError):
+        parts[x] = 0
+
+
   for param in parameters:
     inputs.append(parts[pMap[param]])
 
-  return (0, 0), [inputs]
-  
+  return (0, 0), inputs
+
+
 
 def reducer(a, b):
   return a + b
