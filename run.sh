@@ -1,7 +1,9 @@
 export PYSPARK_PYTHON=python3
+export PYTHONHASHSEED=0
+export SPARK_YARN_USER_ENV=PYTHONHASHSEED=0
 
 hadoop fs -rmr /spark-out
-/usr/local/spark/bin/spark-submit --master local[8] --driver-memory 3g --executor-memory 100G train.py
+/usr/local/spark/bin/spark-submit --master yarn --driver-memory 3g train.py
 hadoop fs -cat /spark-out/part-00000 > out.txt
 
 #rm -r out

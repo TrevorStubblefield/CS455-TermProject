@@ -3,3 +3,5 @@ pyspark
 py4j
 .idea
 out.txt
+__pycache__
+data

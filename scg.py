@@ -235,7 +235,7 @@ def steepest(x, f,gradf, *fargs, **params):
 
 
 
-if __name__ == "__main__":
+"""if __name__ == "__main__":
 
     def parabola(x,xmin,s):
         d = x - xmin
@@ -252,3 +252,4 @@ if __name__ == "__main__":
 
     print('Stopped after',r['nIterations'],'iterations. Reason for stopping:',r['reason'])
     print('Optimal: point =',r['x'],'f =',r['f'])
+    """
