@@ -5,3 +5,4 @@ py4j
 out.txt
 __pycache__
 data
+nohup.out

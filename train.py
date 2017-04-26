@@ -75,6 +75,11 @@ def evaluateNetwork(model,X,T):
 
 
 def trainValidateTestKFolds(trainf,evaluatef,X,T,parameters,nFolds, shuffle=False,verbose=False):
+
+  # first get rid of bad rows with indices for which X[:,0] is -1 i.e. time a.k.a minute of the day = -1.0
+  goodRowsBooleanMask = X[:,0] != -1
+  X = X[goodRowsBooleanMask]
+  T = T[goodRowsBooleanMask]
   # Randomly arrange row indices
   rowIndices = np.arange(X.shape[0])
   if shuffle:
@@ -173,7 +178,7 @@ if __name__ == "__main__":
   results = []
 
   try:
-    lines = sc.textFile('hdfs:///test/data.txt', 1)
+    lines = sc.textFile('hdfs:///test/mini-data.txt', 1)
 
     header = lines.first()
     lines = lines.filter(lambda line: line != header)
