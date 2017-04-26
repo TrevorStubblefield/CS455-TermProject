@@ -1,0 +1,66 @@
+Authors:
+
+Chase Hawthorne
+Sanju George Sam
+Trevor Stubblefield
+Santanu Dey
+
+########################################################################################################################################
+
+Goal: To create a neural network based prediction model for time series household power comsumption data.
+
+Our dataset:
+
+Time Series Power Comsumption Data:
+Data Size: 1114MB
+Entries: 2075259
+Fields: Date;Time;Global_active_power;Global_reactive_power;Voltage;Global_intensity;Sub_metering_1;Sub_metering_2;Sub_metering_3;Sub_metering_4;Sub_metering_5;Sub_metering_6;Sub_metering_6;Sub_metering_8;Sub_metering_9;Sub_metering_10;Sub_metering_11;Sub_metering_12;
+
+
+The output from our project is a series of models and their corresponding errors from our spark run with a 10, 2, 10 setup:
+
+[{'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.04077386201092966.}, 'testFoldError': 0.12591348945277517, 'testFoldNumber': 0, 'minValidationError': 0.038884842694864925}, {'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.04077386201092966.}, 'testFoldError': 0.038884842694864925, 'testFoldNumber': 1, 'minValidationError': 0.038884842694864925}, {'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.04077386201092966.}, 'testFoldError': 0.045393039456517133, 'testFoldNumber': 2, 'minValidationError': 0.038884842694864925}, {'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.04077386201092966.}, 'testFoldError': 0.037780767534511664, 'testFoldNumber': 3, 'minValidationError': 0.038884842694864925}, {'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.046254124103755685.}, 'testFoldError': 0.090959271634323852, 'testFoldNumber': 4, 'minValidationError': 0.038354440727095949}]
+[{'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.043356733643999786.}, 'testFoldError': 0.090068998533840774, 'testFoldNumber': 0, 'minValidationError': 0.049536622852317067}, {'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.043356733643999786.}, 'testFoldError': 0.043624233331999489, 'testFoldNumber': 1, 'minValidationError': 0.049536622852317067}, {'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.04681004413307004.}, 'testFoldError': 0.049536932237904001, 'testFoldNumber': 2, 'minValidationError': 0.048134995291588933}, {'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.04681004413307004.}, 'testFoldError': 0.048134995291588933, 'testFoldNumber': 3, 'minValidationError': 0.048134995291588933}, {'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.04061435422644191.}, 'testFoldError': 0.097550253721825811, 'testFoldNumber': 4, 'minValidationError': 0.030981273044385586}]
+[{'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.04077300424592137.}, 'testFoldError': 0.088156037987720273, 'testFoldNumber': 0, 'minValidationError': 0.064598229009924638}, {'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.05126880846701187.}, 'testFoldError': 0.074821816056025212, 'testFoldNumber': 1, 'minValidationError': 0.056268596353380287}, {'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.05126880846701187.}, 'testFoldError': 0.056268596353380287, 'testFoldNumber': 2, 'minValidationError': 0.056268596353380287}, {'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.05126880846701187.}, 'testFoldError': 0.051455864943432121, 'testFoldNumber': 3, 'minValidationError': 0.056268596353380287}, {'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.04393376677286373.}, 'testFoldError': 0.13071246795330152, 'testFoldNumber': 4, 'minValidationError': 0.041223301899492693}]
+[{'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.047599766751258994.}, 'testFoldError': 0.093424079222515374, 'testFoldNumber': 0, 'minValidationError': 0.043655620019365238}, {'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.047599766751258994.}, 'testFoldError': 0.045767619749106168, 'testFoldNumber': 1, 'minValidationError': 0.043655620019365238}, {'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.047599766751258994.}, 'testFoldError': 0.043655620019365238, 'testFoldNumber': 2, 'minValidationError': 0.043655620019365238}, {'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.047599766751258994.}, 'testFoldError': 0.050232145254341068, 'testFoldNumber': 3, 'minValidationError': 0.043655620019365238}, {'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.051517665009168274.}, 'testFoldError': 0.12500642505774773, 'testFoldNumber': 4, 'minValidationError': 0.040394604039258486}]
+[{'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.043338607328849005.}, 'testFoldError': 0.094572881100406528, 'testFoldNumber': 0, 'minValidationError': 0.05948460601459199}, {'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.043338607328849005.}, 'testFoldError': 0.044390239439247851, 'testFoldNumber': 1, 'minValidationError': 0.05948460601459199}, {'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.043338607328849005.}, 'testFoldError': 0.03951637999487112, 'testFoldNumber': 2, 'minValidationError': 0.05948460601459199}, {'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.04910092279227956.}, 'testFoldError': 0.064663600674017413, 'testFoldNumber': 3, 'minValidationError': 0.052740336165212995}, {'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
+   Network was trained for 101 iterations. Final error is 0.04910092279227956.}, 'testFoldError': 0.076625946916463836, 'testFoldNumber': 4, 'minValidationError': 0.052740336165212995}]
+
+Our most accurate model was the 3rd, with a 0.04077300424592137 error.
+
+########################################################################################################################################
+
+Our files:
+
+train.py:
+	Our main spark implementation, this files contains the driver for the function. This file maps the data from our input on HDFS, reduces it into a more usable form, and divides the data into 5 different folds. From here it trains several neural nets to find the model with the lowest error. This data is then written back to our HDFS cluster. This file also includes our training function for the neural network.
+
+network.py and scg.py:
+	The implementation of our neural network. This file contains the models for our neural network and the supporting code that allows us to store it.
+
+run.sh: 
+	A helper script for running our spark job in yarn.
