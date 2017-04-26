@@ -1,3 +1,4 @@
+export PYSPARK_PYTHON=python3
 
 hadoop fs -rmr /spark-out
 /usr/local/spark/bin/spark-submit --master local[8] --driver-memory 3g --executor-memory 100G train.py
