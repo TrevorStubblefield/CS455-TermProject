@@ -7,17 +7,30 @@ Santanu Dey
 
 ########################################################################################################################################
 
-Goal: To create a neural network based prediction model for time series household power comsumption data.
+Goal: Using spark to train validate test a neural network based non liner regression model to predict household global power consumption
+at minutes of days.
 
 Our dataset:
 
 Time Series Power Comsumption Data:
-Data Size: 1114MB
-Entries: 2075259
-Fields: Date;Time;Global_active_power;Global_reactive_power;Voltage;Global_intensity;Sub_metering_1;Sub_metering_2;Sub_metering_3;Sub_metering_4;Sub_metering_5;Sub_metering_6;Sub_metering_6;Sub_metering_8;Sub_metering_9;Sub_metering_10;Sub_metering_11;Sub_metering_12;
+Data Size: 1114MB over 2075259 samples
+
+Fields: Date;Time;Global_active_power;Global_reactive_power;Voltage;Global_intensity;Sub_metering_1;Sub_metering_2;Sub_metering_3;Sub_metering_4;Sub_metering_5;Sub_metering_6;Sub_metering_6;Sub_metering_8;Sub_metering_9;Sub_metering_10;Sub_metering_11;Sub_metering_12;Custom ASCII Field
 
 
-The output from our project is a series of models and their corresponding errors from our spark run with a 10, 2, 10 setup:
+Methodolgy:
+1. Uniformly distribute input data samples amongst 5 buckets
+2. Parttion each bucket of data into 5 folds after randomly shuffling the samples.
+3. Treating each each of the 5 folds as test set, consider 1  other amongst the remaining 4 as validation set  and final remaining 3 folds as combined training set.
+4. Bootstrap neural network  with specified hidden layers architecture and train it using the training set from 4 above. Use the trained model to validate against the validation set.
+   Calculate RMSE error for each validation set.
+5. Repeat 3,4,5 for each choice of 1 validation set for this test fold made in 3. And find minimum of validation RMSEs for the 4 validation sets.
+6. Use the trained network with minimum validation RMSE to test against the test set.
+7. Repeat this for each choice of test fold - basically repeat 3, 4, 5, 6 and report the minimum validatin error, test error and hidden layers architecture for the network.
+8. Parrallely the process for each of the buckets  happens.
+
+
+Here is  a sample output from a series of netural network models and their corresponding errors from our spark run with chosen hidden layers arch of  10, 2 and 10 units in the 1st, 2nd and 3rd layer resectively:
 
 [{'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
    Network was trained for 101 iterations. Final error is 0.04077386201092966.}, 'testFoldError': 0.12591348945277517, 'testFoldNumber': 0, 'minValidationError': 0.038884842694864925}, {'bestNetworkForTheFold': {'neuralnetwork': Network(7, [10, 2, 10], 1)
@@ -54,13 +67,20 @@ Our most accurate model was the 3rd, with a 0.04077300424592137 error.
 
 ########################################################################################################################################
 
-Our files:
+Source files:
 
 train.py:
-	Our main spark implementation, this files contains the driver for the function. This file maps the data from our input on HDFS, reduces it into a more usable form, and divides the data into 5 different folds. From here it trains several neural nets to find the model with the lowest error. This data is then written back to our HDFS cluster. This file also includes our training function for the neural network.
 
-network.py and scg.py:
-	The implementation of our neural network. This file contains the models for our neural network and the supporting code that allows us to store it.
+The pysark driver.
+
+This file maps the data from our input on HDFS, reduces it into a more usable form, and divides the data into 5 different buckets. 
+Uses the trainValidateTestKFolds() function to accomplish the training, validation and testing of models.  The ouput from this repeated runs of the train validate, test is is then written back to our HDFS cluster. 
+
+network.py:
+        The neural network class with methods such as init, train, use etc.
+
+scg.py:
+	The implementation of scaled conjugate gradient descent used by our implementation of neural network train function. 
 
 run.sh: 
 	A helper script for running our spark job in yarn.
