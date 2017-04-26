@@ -18,18 +18,7 @@ def mapper(line, parameters, target):
     'sub_metering_3': 8
   }
 
-  #if '?' in line:
-  #  return
-
   parts = line.split(';')
-
-  assignment = random.randint(1, 5)
-  inputs = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-  newTarget = 0.0
-
-  if len(parts) < 9:
-    return "P" + str(assignment), [np.array(inputs), np.array([newTarget])]
-
   inputs = []
 
   for x in range(1, 9):
@@ -53,6 +42,8 @@ def mapper(line, parameters, target):
     newTarget = float(parts[pMap[target]])
   except (ValueError, TypeError):
     newTarget = 0.0
+
+  assignment = random.randint(1, 5)
 
   return "P" + str(assignment), [np.array(inputs), np.array([newTarget])]
 
@@ -161,14 +152,14 @@ def trainValidateTestKFolds(trainf,evaluatef,X,T,parameters,nFolds, shuffle=Fals
 def train(a):
   #print(a[1][0].shape, a[1][1].shape)
   return trainValidateTestKFolds(trainNetwork, evaluateNetwork, a[1][0], a[1][1], [[10, 2,10], 100], nFolds=5, shuffle=False)
-  
+
 if __name__ == "__main__":
   # input: <file>
-  
+
   # The parameters we will be testing on
   parameters = ['time', 'global_reactive_power', 'voltage', 'global_intensity', 'sub_metering_1', 'sub_metering_2', 'sub_metering_3']
   target = 'global_active_power'
-  
+
   sc = SparkContext(appName="NNTraining")
   sc.addPyFile("network.py")
   sc.addPyFile("scg.py")
@@ -177,31 +168,27 @@ if __name__ == "__main__":
   results = []
 
   try:
-    lines = sc.textFile('hdfs:///test/data.txt', 1)
-    
+    lines = sc.textFile('hdfs:///data/uci/mini-data.txt', 1)
+
     header = lines.first()
-    lines = lines.filter(lambda line: line != header or "?" in line or any(char.isdigit() for char in line))
-    
+    lines = lines.filter(lambda line: line != header)
+
     result = lines.map(lambda line: mapper(line, parameters, target))
-    
+
     results.append(result.cache())
-  
+
   except Exception as e:
     print(e.message)
-    
+
   # RDD to hold the output of all of our mapping
   map_results = sc.emptyRDD()
-  
+
   map_results = sc.union(results)
   map_results = map_results.reduceByKey(reducer).cache()
 
-  map_results.foreach(train)
-
-  #map_results = map_results.map(lambda a: train(a))
+  map_results = map_results.map(lambda a: train(a))
 
   map_results.collect()
   map_results.saveAsTextFile('hdfs:///spark-out')
-  
+
   sc.stop()
-
-
