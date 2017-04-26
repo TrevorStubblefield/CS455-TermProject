@@ -21,31 +21,36 @@ def mapper(line, parameters, target):
   parts = line.split(';')
   inputs = []
 
-  for x in range(1, 9):
-    if x > 1:
-      try:
-        parts[x] = float(parts[x])
-      except (ValueError, TypeError):
-        parts[x] = 0.0
-    else:
-      try:
-        temp = parts[x].split(":")
-        parts[x] = int(temp[0]) * 60 + int(temp[1])
-      except (ValueError, TypeError):
-        parts[x] = 0
+  if len(parts) >= 9:
+    for x in range(1, 9):
+      if x > 1:
+        try:
+          parts[x] = float(parts[x])
+        except (ValueError, TypeError):
+          parts[x] = 0.0
+      else:
+        try:
+          temp = parts[x].split(":")
+          parts[x] = int(temp[0]) * 60 + int(temp[1])
+        except (ValueError, TypeError):
+          parts[x] = 0
 
 
-  for param in parameters:
-    inputs.append(parts[pMap[param]])
+    for param in parameters:
+      inputs.append(parts[pMap[param]])
 
-  try:
-    newTarget = float(parts[pMap[target]])
-  except (ValueError, TypeError):
-    newTarget = 0.0
+    try:
+      newTarget = float(parts[pMap[target]])
+    except (ValueError, TypeError):
+      newTarget = 0.0
 
-  assignment = random.randint(1, 5)
+    assignment = random.randint(1, 5)
 
-  return "P" + str(assignment), [np.array(inputs), np.array([newTarget])]
+    return "P" + str(assignment), [np.array(inputs), np.array([newTarget])]
+  else:
+    assignment = random.randint(1, 5)
+
+    return "P" + str(assignment), [np.array([-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]), np.array([0.0])]
 
 def simpleReducer(a, b):
   return len()
@@ -168,7 +173,7 @@ if __name__ == "__main__":
   results = []
 
   try:
-    lines = sc.textFile('hdfs:///data/uci/mini-data.txt', 1)
+    lines = sc.textFile('hdfs:///test/data.txt', 1)
 
     header = lines.first()
     lines = lines.filter(lambda line: line != header)
