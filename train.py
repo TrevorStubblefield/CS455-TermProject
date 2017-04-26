@@ -58,6 +58,14 @@ def simpleReducer(a, b):
 def reducer(a, b):
   return [np.vstack((a[0], b[0])), np.vstack((a[1], b[1]))]
 
+## Method to train on training dataset.
+## Training set is matrix of inputs X minus the output/target columns and output/target columns expressed as target mat
+## or target column and output matrix 
+## Takes arguments X, T and a 2 element neural network parameters list 'parameters'
+## 1st element of 'parameters' is another positional list of hidden layer specs i.e # of units in each hidden layer 
+## 2nd element of 'parameters' is number of iterations to perform in gradient descent using scaled conjugate gradient d
+## Returns the trained neural network as model that can be used to predict on test set or validation set
+
 def trainNetwork(X,T,parameters): #X,T,[[10,10], 200]
 
   ## NeworkModeler object init with numInputAttributes, list of hidden layer specs
@@ -67,13 +75,33 @@ def trainNetwork(X,T,parameters): #X,T,[[10,10], 200]
   nnet.trainBySCG(X, T, nIterations=parameters[1], verbose=False)
   return {'neuralnetwork':nnet}
 
+# Method to evaluate the error (RMSE) of predictions on test set or validation set or any other dataset.
+# Takes as arguments the test set X and T matrices along with the model object which is really the constructed neural n
+# Model is used to use to predict Y matrix of outputs for input matrix X
+# The predicted Y matrix of outputs is compared against recorded T matrix of outputs for the input dataset
+# RMSE is calculated for Y‐T diff and returned
 
 def evaluateNetwork(model,X,T):
   Y=model['neuralnetwork'].predict(X)
   return np.sqrt(np.mean((Y-T)**2))
 
 
-
+## This method does following pseudo code
+##for each of the K test folds:
+##     for each K‐1 validation folds for this test fold:
+##         instantiate neural network using supplied hidden layers parameters 
+##         run SCG for supplied nIterations to train the network
+##         evaluate error of prediction for this validation fold by predicting using the trained network
+##         if this validation fold's prediction error is < minimum error across this test fold's validation folds:
+##             update new best Model i.e. the best network to be this iteration's trained network
+##             update new best error to be this validation fold's prediction error
+##     Now use the best network across all validation folds of this test fold to predict on this test fold
+##     Evaulate this test fold's prediction error and note down the error
+##     note down this testfold's chosen trained network (the best across this test fold's validation folds)
+##     
+## Return the list of dictionaries for each test fold
+## dictionary for each fold has foldNumber, best network, fold's error, minimum of fold's validation fold errors 
+## 
 def trainValidateTestKFolds(trainf,evaluatef,X,T,parameters,nFolds, shuffle=False,verbose=False):
 
   # first get rid of bad rows with indices for which X[:,0] is -1 i.e. time a.k.a minute of the day = -1.0
@@ -159,9 +187,9 @@ def trainValidateTestKFolds(trainf,evaluatef,X,T,parameters,nFolds, shuffle=Fals
   # End of Iterations  over all test folds
   return results
 
-def train(a):
+#def train(a):
   #print(a[1][0].shape, a[1][1].shape)
-  return trainValidateTestKFolds(trainNetwork, evaluateNetwork, a[1][0], a[1][1], [[10, 2,10], 100], nFolds=5, shuffle=False)
+#  return trainValidateTestKFolds(trainNetwork, evaluateNetwork, a[1][0], a[1][1], [[10, 2,10], 100], nFolds=5, shuffle=False)
 
 if __name__ == "__main__":
   # input: <file>
@@ -196,7 +224,7 @@ if __name__ == "__main__":
   map_results = sc.union(results)
   map_results = map_results.reduceByKey(reducer).cache()
 
-  map_results = map_results.map(lambda a: train(a))
+  map_results = map_results.map(lambda a: trainValidateTestKFolds(trainNetwork, evaluateNetwork, a[1][0], a[1][1], [[10, 2,10], 100], nFolds=5, shuffle=False)))
 
   map_results.collect()
   map_results.saveAsTextFile('hdfs:///spark-out')
