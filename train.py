@@ -45,11 +45,11 @@ def mapper(line, parameters, target):
     except (ValueError, TypeError):
       newTarget = 0.0
 
-    assignment = random.randint(1, 5)
+    assignment = random.randint(1, 10)
 
     return assignment, [np.array(inputs), np.array([newTarget])]
   else:
-    assignment = random.randint(1, 5)
+    assignment = random.randint(1, 10)
 
     return assignment, [np.array([-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]), np.array([0.0])]
 
@@ -203,7 +203,7 @@ if __name__ == "__main__":
   print('DefaultParallelism=', sc.defaultParallelism)
 
   try:
-    lines = sc.textFile('hdfs:///cs455/hw4minidata/x01-1', 5)
+    lines = sc.textFile('hdfs:///cs455/hw4fulldata/alldata.txt', 10)
 
     header = lines.first()
     lines = lines.filter(lambda line: line != header)
@@ -213,24 +213,26 @@ if __name__ == "__main__":
   except Exception as e:
     print(e.message)
 
-  # RDD to hold the output of all of our mapping
-  #map_results = sc.emptyRDD()
-
-  #map_results = sc.union(results)
   
   reduce_results = map_results.reduceByKey(reducer).cache()
+  map_results.unpersist()
 
   print('After reduce by buckets', str(datetime.datetime.now()))
 
   train_map_results = reduce_results.map(lambda a: trainValidateTestKFolds(trainNetwork, evaluateNetwork, a[1][0], a[1][1], [[10, 2,10], 100], nFolds=5, shuffle=False))
 
-  print('After train map', str(datetime.datetime.now()))
+  train_map_results.cache()
+  reduce_results.unpersist()
 
   train_map_results.collect()
 
   print('After collect', str(datetime.datetime.now()))
 
-  train_map_results.saveAsTextFile('hdfs:///cs455/hw4minidata-spark-out')
+  with open("../output.txt", "w") as text_file:
+    [print("Results from partition:\n {}".format(x), file=text_file) for x in train_map_results.toLocalIterator()]
+
+
+  #train_map_results.saveAsTextFile('hdfs:///cs455/hw4minidata-spark-out')
 
   print('After save', str(datetime.datetime.now()))
 
