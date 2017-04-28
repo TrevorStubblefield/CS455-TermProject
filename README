@@ -7,7 +7,7 @@ Santanu Dey
 
 ########################################################################################################################################
 
-Goal: Using spark to train validate test a neural network based non liner regression model to predict household global power consumption
+Goal: Using spark to train validate test neural network based nonlinear regression models to predict household global power consumption
 at minutes of days.
 
 Our dataset:
@@ -71,10 +71,10 @@ Source files:
 
 train.py:
 
-The pysark driver.
+The pyspark driver.
 
 This file maps the data from our input on HDFS, reduces it into a more usable form, and divides the data into 5 different buckets. 
-Uses the trainValidateTestKFolds() function to accomplish the training, validation and testing of models.  The ouput from this repeated runs of the train validate, test is is then written back to our HDFS cluster. 
+Uses the trainValidateTestKFolds() function to accomplish the training, validation and testing of models against each bucket.  The output from this repeated runs of the train validate, test is collected and reported.
 
 network.py:
         The neural network class with methods such as init, train, use etc.
@@ -83,4 +83,4 @@ scg.py:
 	The implementation of scaled conjugate gradient descent used by our implementation of neural network train function. 
 
 run.sh: 
-	A helper script for running our spark job in yarn.
+	A helper script for running our spark application in yarn.
