@@ -5,6 +5,7 @@ import network as nn
 import unicodedata
 import sys
 import os
+import datetime as datetime
 
 def mapper(line, parameters, target):
   pMap = {
@@ -46,11 +47,11 @@ def mapper(line, parameters, target):
 
     assignment = random.randint(1, 5)
 
-    return "P" + str(assignment), [np.array(inputs), np.array([newTarget])]
+    return assignment, [np.array(inputs), np.array([newTarget])]
   else:
     assignment = random.randint(1, 5)
 
-    return "P" + str(assignment), [np.array([-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]), np.array([0.0])]
+    return assignment, [np.array([-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]), np.array([0.0])]
 
 def simpleReducer(a, b):
   return len()
@@ -181,15 +182,12 @@ def trainValidateTestKFolds(trainf,evaluatef,X,T,parameters,nFolds, shuffle=Fals
 
     testFoldError=evaluatef(bestModel,NewXtest,NewTtest)
 
-    results.append({'testFoldNumber': testFold,'bestNetworkForTheFold':bestModel,
+    results.append({'Number of samples': nSamples, 'testFoldNumber': testFold,'bestNetworkForTheFold':bestModel,
                     'minValidationError': minimumValidationError,'testFoldError':testFoldError })
 
   # End of Iterations  over all test folds
   return results
 
-#def train(a):
-  #print(a[1][0].shape, a[1][1].shape)
-#  return trainValidateTestKFolds(trainNetwork, evaluateNetwork, a[1][0], a[1][1], [[10, 2,10], 100], nFolds=5, shuffle=False)
 
 if __name__ == "__main__":
   # input: <file>
@@ -202,31 +200,50 @@ if __name__ == "__main__":
   sc.addPyFile("network.py")
   sc.addPyFile("scg.py")
 
+  print('DefaultParallelism=', sc.defaultParallelism)
+
   # The output of the mapping
-  results = []
+  #results = []
 
   try:
-    lines = sc.textFile('hdfs:///test/mini-data.txt', 1)
+    lines = sc.textFile('hdfs:///cs455/hw4minidata/x01-1', 5)
 
     header = lines.first()
     lines = lines.filter(lambda line: line != header)
 
-    result = lines.map(lambda line: mapper(line, parameters, target))
+    map_results = lines.map(lambda line: mapper(line, parameters, target), True)
 
-    results.append(result.cache())
+    #results.append(result.cache())
 
   except Exception as e:
     print(e.message)
 
   # RDD to hold the output of all of our mapping
-  map_results = sc.emptyRDD()
+  #map_results = sc.emptyRDD()
 
-  map_results = sc.union(results)
-  map_results = map_results.reduceByKey(reducer).cache()
+  #print('Before union', str(datetime.datetime.now()))
 
-  map_results = map_results.map(lambda a: trainValidateTestKFolds(trainNetwork, evaluateNetwork, a[1][0], a[1][1], [[10, 2,10], 100], nFolds=5, shuffle=False)))
+  #map_results = sc.union(results)
+  
+  #map_results = sc.parallelize(results)
 
-  map_results.collect()
-  map_results.saveAsTextFile('hdfs:///spark-out')
+  print('Before reduce by buckets', str(datetime.datetime.now()))
+
+  reducebykey_results = map_results.reduceByKey(reducer, 5).cache()
+
+  print('After reduce by buckets', str(datetime.datetime.now()))
+
+  train_map_results = reducebykey_results.map(lambda a: trainValidateTestKFolds(trainNetwork, evaluateNetwork, a[1][0], a[1][1], [[10, 2,10], 100], nFolds=5, shuffle=False))
+
+  print('After train map', str(datetime.datetime.now()))
+
+  train_map_results.collect()
+
+  print('After collect', str(datetime.datetime.now()))
+
+  train_map_results.saveAsTextFile('hdfs:///cs455/hw4minidata-spark-out')
+
+  print('After save', str(datetime.datetime.now()))
+  
 
   sc.stop()
