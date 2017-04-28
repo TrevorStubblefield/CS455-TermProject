@@ -203,7 +203,8 @@ if __name__ == "__main__":
   print('DefaultParallelism=', sc.defaultParallelism)
 
   try:
-    lines = sc.textFile('hdfs:///cs455/hw4fulldata/alldata.txt', 10)
+    #lines = sc.textFile('hdfs:///cs455/hw4fulldata/alldata.txt', 10)
+    lines = sc.textFile('hdfs:///cs455/hw4minidata/x01-1', 10)
 
     header = lines.first()
     lines = lines.filter(lambda line: line != header)
@@ -228,8 +229,12 @@ if __name__ == "__main__":
 
   print('After collect', str(datetime.datetime.now()))
 
-  with open("../output.txt", "w") as text_file:
-    [print("Results from partition:\n {}".format(x), file=text_file) for x in train_map_results.toLocalIterator()]
+  with open(sys.argv[1], "w") as text_file:
+    i=0
+    for x in train_map_results.toLocalIterator():
+      print("Results from partition {}:\n {}".format(i,x), file=text_file) 
+      i += 1
+    #[print("Results from partition:\n {}".format(x), file=text_file) for x in train_map_results.toLocalIterator()]
 
 
   #train_map_results.saveAsTextFile('hdfs:///cs455/hw4minidata-spark-out')
