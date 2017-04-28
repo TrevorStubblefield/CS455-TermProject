@@ -202,9 +202,6 @@ if __name__ == "__main__":
 
   print('DefaultParallelism=', sc.defaultParallelism)
 
-  # The output of the mapping
-  #results = []
-
   try:
     lines = sc.textFile('hdfs:///cs455/hw4minidata/x01-1', 5)
 
@@ -213,27 +210,19 @@ if __name__ == "__main__":
 
     map_results = lines.map(lambda line: mapper(line, parameters, target), True)
 
-    #results.append(result.cache())
-
   except Exception as e:
     print(e.message)
 
   # RDD to hold the output of all of our mapping
   #map_results = sc.emptyRDD()
 
-  #print('Before union', str(datetime.datetime.now()))
-
   #map_results = sc.union(results)
   
-  #map_results = sc.parallelize(results)
-
-  print('Before reduce by buckets', str(datetime.datetime.now()))
-
-  reducebykey_results = map_results.reduceByKey(reducer, 5).cache()
+  reduce_results = map_results.reduceByKey(reducer).cache()
 
   print('After reduce by buckets', str(datetime.datetime.now()))
 
-  train_map_results = reducebykey_results.map(lambda a: trainValidateTestKFolds(trainNetwork, evaluateNetwork, a[1][0], a[1][1], [[10, 2,10], 100], nFolds=5, shuffle=False))
+  train_map_results = reduce_results.map(lambda a: trainValidateTestKFolds(trainNetwork, evaluateNetwork, a[1][0], a[1][1], [[10, 2,10], 100], nFolds=5, shuffle=False))
 
   print('After train map', str(datetime.datetime.now()))
 
@@ -244,6 +233,5 @@ if __name__ == "__main__":
   train_map_results.saveAsTextFile('hdfs:///cs455/hw4minidata-spark-out')
 
   print('After save', str(datetime.datetime.now()))
-  
 
   sc.stop()
